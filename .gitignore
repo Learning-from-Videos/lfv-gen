@@ -2,6 +2,15 @@
 __pycache__/
 *.py[cod]
 *$py.class
+# Videos
+*.json
+*.mp4
+# TFDS
+*.snapshot
+*.metadata 
+*.pb
+# direnv
+.envrc
 
 # C extensions
 *.so
