@@ -1,0 +1,19 @@
+[project]
+name = "lfv-gen"
+version = "0.1.0"
+description = "Benchmarking learning-from-videos methods"
+authors = [
+    {name = "Daniel CH Tan", email = "dtch1997@users.noreply.github.com"},
+]
+dependencies = []
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+package-type = "library"
