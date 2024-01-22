@@ -6,7 +6,7 @@ authors = [
     {name = "Daniel CH Tan", email = "dtch1997@users.noreply.github.com"},
 ]
 dependencies = [
-    "metaworld @ git+https://github.com/suraj-nair-1/metaworld.git@master",
+    "metaworld @ git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld",
     "jax>=0.4.23",
     "dm-haiku>=0.0.11",
     "flax>=0.7.5",
@@ -17,8 +17,8 @@ dependencies = [
     "matplotlib>=3.8.2",
     "tensorflow>=2.15.0",
     "moviepy>=1.0.3",
-    "cython<3",
-    "mujoco-py==2.0.2.5",
+    # "cython<3",
+    # "mujoco-py==2.0.2.5",
     "numpy>=1.26.3",
 ]
 requires-python = ">=3.10,<3.11" # jam does not support 3.11
