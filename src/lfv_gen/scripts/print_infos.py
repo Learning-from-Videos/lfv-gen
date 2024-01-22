@@ -23,13 +23,14 @@ template = """
     R3MDemonstrationDataset(
         suite='{suite}',
         viewpoint='{viewpoint}',
+        name='{name}',
         gdrive_id='{gdrive_id}',
     ),
 """.strip('\n')
 
 if __name__ == "__main__":
     for suite, viewpoint in itertools.product(suites, viewpoints):
-        filepath = f"src/lfv_gen/datasets/infos/{suite}_{viewpoint}_cap2.txt"
+        filepath = f"src/lfv_gen/data/infos/{suite}_{viewpoint}_cap2.txt"
         with open(filepath, 'r') as f:
             lines = f.read().splitlines()
             for line in lines[1:]: # Remove the header
@@ -38,6 +39,6 @@ if __name__ == "__main__":
                 print(template.format(
                     suite=suite,
                     viewpoint=viewpoint,
+                    name=name,
                     gdrive_id=id,
                 ))
-        git 
