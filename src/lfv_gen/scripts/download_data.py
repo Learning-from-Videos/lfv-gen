@@ -10,8 +10,14 @@ from lfv_gen.data.dataset_zoo import R3M_DATASETS
 
 DATASETS_DIR = pathlib.Path("datasets")
 
+def try_download(id, output):
+    try:
+        gdown.download(id=id, output=output, quiet=False)
+    except Exception as e:
+        print(e)
+
 if __name__ == "__main__":
     for dataset in R3M_DATASETS:
         output_path = DATASETS_DIR / dataset.path
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        gdown.download(id=dataset.gdrive_id, output=str(output_path), quiet=False)
+        try_download(id=dataset.gdrive_id, output=output_path)
