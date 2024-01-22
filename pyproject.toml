@@ -6,7 +6,7 @@ authors = [
     {name = "Daniel CH Tan", email = "dtch1997@users.noreply.github.com"},
 ]
 dependencies = [
-    "metaworld @ git+https://github.com/rlworkgroup/metaworld.git@master#egg=metaworld",
+    "metaworld @ git+https://github.com/Learning-from-Videos/Metaworld.git@master#egg=metaworld",
     "jax>=0.4.23",
     "dm-haiku>=0.0.11",
     "flax>=0.7.5",
