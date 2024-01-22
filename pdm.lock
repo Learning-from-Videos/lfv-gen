@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:7d1d2edf6c04d8f0b18670e2dd48ac87de73b214e27206f2d551ec09dac90639"
+content_hash = "sha256:4feb85279f698704f5bd46195263e4703cd3efc37d6bfac2ce2c78ffd4ae8fb1"
 
 [[package]]
 name = "absl-py"
@@ -54,6 +54,20 @@ dependencies = [
 files = [
     {file = "astunparse-1.6.3-py2.py3-none-any.whl", hash = "sha256:c2652417f2c8b5bb325c885ae329bdf3f86424075c4fd1a128674bc6fba4b8e8"},
     {file = "astunparse-1.6.3.tar.gz", hash = "sha256:5ad93a8456f0d084c3456d059fd9a92cce667963232cbf763eac3bc5b7940872"},
+]
+
+[[package]]
+name = "beautifulsoup4"
+version = "4.12.3"
+requires_python = ">=3.6.0"
+summary = "Screen-scraping library"
+groups = ["default"]
+dependencies = [
+    "soupsieve>1.2",
+]
+files = [
+    {file = "beautifulsoup4-4.12.3-py3-none-any.whl", hash = "sha256:b80878c9f40111313e55da8ba20bdba06d8fa3969fc68304167741bbf9e082ed"},
+    {file = "beautifulsoup4-4.12.3.tar.gz", hash = "sha256:74e3d1928edc070d21748185c46e3fb33490f22f52a3addee9aee0f4f7781051"},
 ]
 
 [[package]]
@@ -448,6 +462,23 @@ files = [
 ]
 
 [[package]]
+name = "gdown"
+version = "5.0.0"
+requires_python = ">=3.8"
+summary = "Google Drive Public File/Folder Downloader"
+groups = ["default"]
+dependencies = [
+    "beautifulsoup4",
+    "filelock",
+    "requests[socks]",
+    "tqdm",
+]
+files = [
+    {file = "gdown-5.0.0-py3-none-any.whl", hash = "sha256:f8c709a07262054ad8076ce718700ac1cc708617b482844c55281d4be4826412"},
+    {file = "gdown-5.0.0.tar.gz", hash = "sha256:ac3142150a4178a9fb7a3a536c9df9590e488c2e6fa02c3ed391d26a6fc19527"},
+]
+
+[[package]]
 name = "glfw"
 version = "2.6.4"
 summary = "A ctypes-based wrapper for GLFW3."
@@ -690,7 +721,7 @@ files = [
 [[package]]
 name = "jam"
 version = "0.1.0"
-requires_python = ">=3.9,<3.11"
+requires_python = "<3.11,>=3.9"
 git = "https://github.com/ethanluoyc/jam"
 revision = "02e290b22f0a474ecc8026fd556fcd305f9df326"
 summary = ""
@@ -976,7 +1007,7 @@ files = [
 [[package]]
 name = "metaworld"
 version = "2.0.0"
-requires_python = ">= 3.8"
+requires_python = ">=3.8"
 git = "https://github.com/Learning-from-Videos/Metaworld.git"
 ref = "master"
 revision = "0fb467dcc453678ba7f5a3cd521013ca51436e6d"
@@ -1411,6 +1442,17 @@ files = [
 ]
 
 [[package]]
+name = "pysocks"
+version = "1.7.1"
+requires_python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+summary = "A Python SOCKS client module. See https://github.com/Anorov/PySocks for more information."
+groups = ["default"]
+files = [
+    {file = "PySocks-1.7.1-py3-none-any.whl", hash = "sha256:2725bd0a9925919b9b51739eea5f9e2bae91e83288108a9ad338b2e3a4435ee5"},
+    {file = "PySocks-1.7.1.tar.gz", hash = "sha256:3f8804571ebe159c380ac6de37643bb4685970655d3bba243530d6558b799aa0"},
+]
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 requires_python = "!=3.0.*,!=3.1.*,!=3.2.*,>=2.7"
@@ -1557,6 +1599,22 @@ files = [
 ]
 
 [[package]]
+name = "requests"
+version = "2.31.0"
+extras = ["socks"]
+requires_python = ">=3.7"
+summary = "Python HTTP for Humans."
+groups = ["default"]
+dependencies = [
+    "PySocks!=1.5.7,>=1.5.6",
+    "requests==2.31.0",
+]
+files = [
+    {file = "requests-2.31.0-py3-none-any.whl", hash = "sha256:58cd2187c01e70e6e26505bca751777aa9f2ee0b7f4300988b709f44e013003f"},
+    {file = "requests-2.31.0.tar.gz", hash = "sha256:942c5a758f98d790eaed1a29cb6eefc7ffb0d1cf7af05c3d2791656dbd6ad1e1"},
+]
+
+[[package]]
 name = "rich"
 version = "13.7.0"
 requires_python = ">=3.7.0"
@@ -1673,6 +1731,17 @@ groups = ["default"]
 files = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},
     {file = "six-1.16.0.tar.gz", hash = "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926"},
+]
+
+[[package]]
+name = "soupsieve"
+version = "2.5"
+requires_python = ">=3.8"
+summary = "A modern CSS selector implementation for Beautiful Soup."
+groups = ["default"]
+files = [
+    {file = "soupsieve-2.5-py3-none-any.whl", hash = "sha256:eaa337ff55a1579b6549dc679565eac1e3d000563bcb1c8ab0d0fefbc0c2cdc7"},
+    {file = "soupsieve-2.5.tar.gz", hash = "sha256:5663d5a7b3bfaeee0bc4372e7fc48f9cff4940b3eec54a6451cc5299f1097690"},
 ]
 
 [[package]]

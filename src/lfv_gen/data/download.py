@@ -1,5 +1,11 @@
 import gdown
-from lfv_gen.data.dataset_zoo import 
+import pathlib
+from lfv_gen.data.dataset_zoo import R3M_DATASETS
+
+DATASETS_DIR = pathlib.Path("datasets")
 
 if __name__ == "__main__":
-    
+    for dataset in R3M_DATASETS:
+        output_path = DATASETS_DIR / dataset.path
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        gdown.download(id=dataset.gdrive_id, output=str(output_path), quiet=False)
