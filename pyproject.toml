@@ -11,7 +11,7 @@ dependencies = [
     "dm-haiku>=0.0.11",
     "flax>=0.7.5",
     "optax>=0.1.8",
-    "jam @ git+https://github.com/ethanluoyc/jam",
+    "jam[dev] @ git+https://github.com/ethanluoyc/jam",
     "ipykernel>=6.29.0",
     "pip>=23.3.2",
     "matplotlib>=3.8.2",

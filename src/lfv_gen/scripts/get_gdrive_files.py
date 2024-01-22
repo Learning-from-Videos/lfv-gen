@@ -1,5 +1,8 @@
 """ Script to get file infos from Google Drive 
 
+NOTE: This depends on the `gdrive` command-line utility. 
+See details here: https://github.com/prasmussen/gdrive
+
 Example usage: 
 
 python src/lfv_gen/scripts/get_gdrive_files.py

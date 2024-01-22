@@ -11,6 +11,8 @@ __pycache__/
 *.pb
 # direnv
 .envrc
+# dataset
+datasets
 
 # C extensions
 *.so

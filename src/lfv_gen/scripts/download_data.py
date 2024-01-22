@@ -1,3 +1,9 @@
+""" Script to download data 
+
+Example usage:
+python src/lfv_gen/scripts/download_data.py
+"""
+
 import gdown
 import pathlib
 from lfv_gen.data.dataset_zoo import R3M_DATASETS
