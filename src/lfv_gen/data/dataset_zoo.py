@@ -18,7 +18,7 @@ R3M_DATASETS = tuple(
     R3MDemonstrationDataset(
         suite='metaworld',
         viewpoint='left',
-        name='button-press-topdown…al-observable.pickle',
+        name='button-press-topdown-v2-goal-observable.pickle',
         gdrive_id='11XyH8D5gsm0aA-du66NLhN1F-dUuX6gt',
     ),
     R3MDemonstrationDataset(
@@ -66,7 +66,7 @@ R3M_DATASETS = tuple(
     R3MDemonstrationDataset(
         suite='metaworld',
         viewpoint='right',
-        name='button-press-topdown…al-observable.pickle',
+        name='button-press-topdown-v2-goal-observable.pickle',
         gdrive_id='1bYDgnj3OiQUvlXA2oO3pyEIfDpZN42X4',
     ),
     R3MDemonstrationDataset(
@@ -90,7 +90,7 @@ R3M_DATASETS = tuple(
     R3MDemonstrationDataset(
         suite='metaworld',
         viewpoint='top',
-        name='button-press-topdown…al-observable.pickle',
+        name='button-press-topdown-v2-goal-observable.pickle',
         gdrive_id='1--ZXoUNyIU4sqLIvbEoYdpWlA8wpKHGD',
     ),
     R3MDemonstrationDataset(
