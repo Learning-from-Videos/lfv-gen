@@ -1,6 +1,6 @@
 import simple_parsing
 from dataclasses import dataclass, replace
-from lfv_gen.offline_experiment import (
+from lfv_gen.experiments.offline_experiment import (
     run_offline_experiment, 
     ExperimentConfig, 
     WandbConfig
