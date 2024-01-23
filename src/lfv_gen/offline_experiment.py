@@ -3,6 +3,7 @@ from metaworld.envs import ALL_V2_ENVIRONMENTS_GOAL_OBSERVABLE
 from lfv_gen.config import ROOT_DIR
 
 import wandb
+import simple_parsing
 import gymnasium
 import tensorflow as tf
 import pickle
@@ -34,16 +35,24 @@ Dataset = tf.data.Dataset
 
 @dataclass
 class ExperimentConfig:
-    dataset_env_name: str
-    dataset_viewpoint: str
-    eval_env_name: str
-    eval_viewpoint: str
-    enc_model_name: str
-    train_steps: int
-    eval_freq: int
-    batch_size: int
-    learning_rate: float
-    seed: int
+    dataset_env_name: str = "drawer-open-v2-goal-observable" # Metaworld environment for dataset
+    dataset_env_viewpoint: str = "top_cap2" # 'top_cap2', 'left_cap2', 'right_cap2'
+    dataset_n_episodes: int = 200 # max 200
+    eval_env_name: str = "drawer-open-v2-goal-observable" # Metaworld environment for evaluation
+    eval_env_viewpoint: str = "top_cap2" # 'top_cap2', 'left_cap2', 'right_cap2'
+    enc_model_name: str = "r3m/r3m-18" # 'r3m/r3m-18', 'r3m/r3m-34', 'r3m/r3m-50'
+    train_steps: int = 10000 # Training steps
+    eval_freq: int = 2500 # Evaluation frequency
+    batch_size: int = 256 
+    learning_rate: float = 3e-4
+    seed: int = 42 # Random seed used to initialize policy
+
+@dataclass
+class WandbConfig:
+    project: str | None = None
+    entity: str | None = None
+    group: str | None = "default"
+    name: str | None = "r3m-bc"
 
 def make_gif(image_array: np.ndarray, gif_path: str, fps: int):
     """
@@ -58,7 +67,9 @@ def make_gif(image_array: np.ndarray, gif_path: str, fps: int):
     clip = ImageSequenceClip(images, fps=fps)
     clip.write_gif(gif_path)
 
-def run_offline_experiment():
+def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
+
+    prng_key = jax.random.PRNGKey(config.seed)
 
     def setup_eval_env(
         eval_env_name: str,
@@ -87,7 +98,12 @@ def run_offline_experiment():
         assert image_array.shape == (256, 256, 3)
         return e
     
-    def setup_dataset(dataset_path: str) -> Dataset:
+    def setup_dataset(
+        dataset_env_name: str,
+        dataset_env_viewpoint: str 
+    ) -> Dataset:
+        
+        dataset_path = f"datasets/metaworld/{dataset_env_viewpoint}/{dataset_env_name}.pickle"
         with open(ROOT_DIR / dataset_path, "rb") as f:
             dataset: list[dict[str, Any]] = pickle.load(f)
 
@@ -97,27 +113,38 @@ def run_offline_experiment():
         assert 'observations' in dataset[0].keys()
         assert 'rewards' in dataset[0].keys()
         assert dataset[0]['images'].shape == (500, 256, 256, 3)
+
         return dataset
     
     # Load environment
     logging.info("Setting up environment")
     env_name = "drawer-open-v2-goal-observable"
-    env: Environment = setup_env(env_name)
+    env: Environment = setup_eval_env(
+        eval_env_name=config.eval_env_name,
+        eval_env_viewpoint=config.eval_env_viewpoint
+    )
 
     # Load dataset
     logging.info("Setting up dataset")
-    dataset_path = f"datasets/metaworld/top_cap2/{env_name}.pickle"
-    raw_dataset = setup_dataset(dataset_path)
+    raw_dataset = setup_dataset(
+        dataset_env_name=config.dataset_env_name,
+        dataset_env_viewpoint=config.dataset_env_viewpoint
+    )
+    raw_dataset = raw_dataset[:config.dataset_n_episodes]
     
     # Load visual encoder
     logging.info("Setting up visual encoder")    
-    def r3m_forward(inputs, resnet_size: int = 18, is_training=True):
-        model = r3m.R3M(resnet_size)
+    enc_model_name = config.enc_model_name
+
+    def enc_forward(inputs, is_training=True):
+        if enc_model_name.startswith("r3m"):
+            resnet_size = int(enc_model_name.split("-")[1])
+            model = r3m.R3M(resnet_size)
+        else: 
+            raise ValueError(f"Unknown model name: {enc_model_name}")
         return model(inputs, is_training)
     
-    enc_model_name = "r3m/r3m-18"
-    enc_model = hk.without_apply_rng(hk.transform_with_state(r3m_forward))
-    # TODO: un-hardcode path
+    enc_model = hk.without_apply_rng(hk.transform_with_state(enc_forward))
     enc_state_dict = load_file(f"{JAM_MODEL_DIR}/{enc_model_name}/torch_model.safetensors")
     enc_params, enc_state = r3m.load_from_torch_checkpoint(enc_state_dict)
 
@@ -148,6 +175,7 @@ def run_offline_experiment():
     assert _act.shape == (4,)
 
     # Define an MLP policy that operates on R3M embeddings
+    
     logging.info("Setting up policy")
     def _forward_fn(obs):
         return hk.Sequential(
@@ -157,15 +185,17 @@ def run_offline_experiment():
                 hk.nets.MLP(output_sizes=[256, 256, 4], activate_final=False),
             ]
         )(obs)
+    
+    model_key, prng_key = jax.random.split(prng_key)
     policy_model = hk.without_apply_rng(hk.transform(_forward_fn))
-    policy_params = policy_model.init(jax.random.PRNGKey(42), jnp.zeros((1, 512)))
+    policy_params = policy_model.init(model_key, jnp.zeros((1, 512)))
     @jax.jit
     def policy(params, obs):
         return policy_model.apply(params, obs)
 
     # Define optimizer
     logging.info("Setting up optimizer")
-    optimizer = optax.adam(3e-4)
+    optimizer = optax.adam(config.learning_rate)
     opt_state = optimizer.init(policy_params)
 
     # Define loss function
@@ -189,7 +219,7 @@ def run_offline_experiment():
         eval_env = RecordEpisodeStatistics(eval_env)
         eval_env = RecordVideo(
             eval_env,
-            video_folder=f"videos",
+            video_folder=f"/tmp/videos",
             # Record 3 videos in the same path
             episode_trigger= lambda x: x == 0,
             video_length=1500,
@@ -218,6 +248,12 @@ def run_offline_experiment():
         metrics['episode_length'] = np.mean(episode_lengths)
         metrics['episode_reward'] = np.mean(episode_rewards)
         metrics['elapsed_time'] = np.mean(elapsed_time)
+        video_path = f"/tmp/videos/{env_name}-episode-0.mp4"
+        metrics['video'] = wandb.Video(
+            video_path, 
+            fps=env.metadata['render_fps'], 
+            format="mp4"
+        )
         return metrics
     
     # Run training
@@ -226,7 +262,7 @@ def run_offline_experiment():
         dataset
         .shuffle(int(1e6), reshuffle_each_iteration=True)
         .repeat()
-        .batch(256)
+        .batch(config.batch_size)
         .repeat()
         .as_numpy_iterator()
     )
@@ -234,15 +270,18 @@ def run_offline_experiment():
     # NOTE: Configure WandB through env variables
     # Randomly generate suffix based on time
     import time 
-    wandb.init(dir=f"/tmp/wandb/{time.time()}")
+    wandb.init(
+        project=wandb_config.project,
+        entity=wandb_config.entity,
+        group=wandb_config.group,
+        name=wandb_config.name,
+        dir=f"/tmp/wandb/{time.time()}"
+    )
 
-    num_train_steps = 10000
-    eval_freq = 1000
-
-    for step in range(num_train_steps):
+    for step in range(config.train_steps):
         policy_params, opt_state, loss = train_step(policy_params, opt_state, next(dataset_iterator))
         wandb.log({"train/loss": loss})
-        if step % eval_freq == 0:
+        if step % config.eval_freq == 0:
             eval_metrics = eval_policy(policy, policy_params, env)
             eval_metrics={"eval/" + k: v for k, v in eval_metrics.items()}
             wandb.log(eval_metrics)
@@ -251,4 +290,10 @@ def run_offline_experiment():
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    run_offline_experiment()
+
+    parser = simple_parsing.ArgumentParser()
+    parser.add_arguments(ExperimentConfig, dest="config")
+    parser.add_arguments(WandbConfig, dest="wandb_config")
+
+    args = parser.parse_args()
+    run_offline_experiment(args.config, args.wandb_config)
