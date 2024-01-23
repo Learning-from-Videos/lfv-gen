@@ -7,9 +7,9 @@ from lfv_gen.experiments.offline_experiment import (
 )
 from typing import Iterable, Any
 
-def get_dataset_size_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
-    for dataset_size in [20, 50, 100, 200]:
-        yield replace(config, dataset_size=dataset_size)
+def get_dataset_n_episodes_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
+    for dataset_n_episodes in [20, 50, 100, 200]:
+        yield replace(config, dataset_n_episodes=dataset_n_episodes)
 
 def get_enc_model_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
     for enc_model_name in [
@@ -63,7 +63,7 @@ def get_eval_env_name_sweep(config: ExperimentConfig) -> Iterable[ExperimentConf
 
 # Dictionary of sweep_name: (sweep_fn, sweep_var_name)
 sweeps: dict[str, tuple[Any, str]] = {
-    "dataset_size": (get_dataset_size_sweep, "dataset_size"),
+    "dataset_n_episodes": (get_dataset_n_episodes_sweep, "dataset_n_episodes"),
     "enc_model": (get_enc_model_sweep, "enc_model_name"),
     "eval_env_and_dataset_env_viewpoint": (get_eval_env_and_dataset_env_viewpoint_sweep, "dataset_env_viewpoint"),
     "eval_env_viewpoint": (get_eval_env_viewpoint_sweep, "eval_env_viewpoint"),
