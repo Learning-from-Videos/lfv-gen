@@ -8,7 +8,7 @@ from lfv_gen.experiments.offline_experiment import (
 from typing import Iterable, Any
 
 def get_dataset_n_episodes_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
-    for dataset_n_episodes in [20, 50, 100, 200]:
+    for dataset_n_episodes in [1, 3, 10, 30, 100, 200]:
         yield replace(config, dataset_n_episodes=dataset_n_episodes)
 
 def get_enc_model_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
