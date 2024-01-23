@@ -95,11 +95,6 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
         # Hack: enable random reset
         e._freeze_rand_vec = False
 
-        # Hack: create an env spec similar to dm.Env
-        e.spec = namedtuple('spec', ['id', 'max_episode_steps'])
-        e.spec.id = env_name
-        e.spec.max_episode_steps = 500
-
         # Hack: set the camera view  to be the same as R3M
         e.camera_name = eval_env_viewpoint
         # Hack: set the renderer to return 256x256 images
@@ -132,7 +127,6 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
     
     # Load environment
     logging.info("Setting up environment")
-    env_name = "drawer-open-v2-goal-observable"
     env: Environment = setup_eval_env(
         eval_env_name=config.eval_env_name,
         eval_env_viewpoint=config.eval_env_viewpoint
