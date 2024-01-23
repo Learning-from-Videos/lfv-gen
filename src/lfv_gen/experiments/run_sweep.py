@@ -71,6 +71,16 @@ sweeps: dict[str, tuple[Any, str]] = {
     "eval_env_name": (get_eval_env_name_sweep, "eval_env_name"),
 }
 
+def run_sweep(sweep_name: str, config: ExperimentConfig):
+    # Run sweep
+    sweep_fn, sweep_var = sweeps[sweep_name]
+    for config in sweep_fn(config):
+        wandb_config = WandbConfig(
+            group=sweep_name,
+            name=f"{sweep_var}={getattr(config, sweep_var)}",
+        )
+        run_offline_experiment(config, wandb_config=wandb_config)
+
 if __name__ == "__main__":
 
     parser = simple_parsing.ArgumentParser()
@@ -78,16 +88,14 @@ if __name__ == "__main__":
         "--sweep-name", 
         type=str, 
         default="eval_env_and_dataset_env_viewpoint",
-        choices = list(sweeps.keys()),
+        choices = list(sweeps.keys()) + ["all"],
     )
     parser.add_arguments(ExperimentConfig, dest="config")
     args = parser.parse_args()
 
-    # Run sweep
-    sweep_fn, sweep_var = sweeps[args.sweep_name]
-    for config in sweep_fn(args.config):
-        wandb_config = WandbConfig(
-            group=args.sweep_name,
-            name=f"{sweep_var}={getattr(config, sweep_var)}",
-        )
-        run_offline_experiment(config, wandb_config=wandb_config)
+    # Run sweep(s)
+    if args.sweep_name == "all":
+        for sweep_name in sweeps.keys():
+            run_sweep(sweep_name, args.config)
+    else:
+        run_sweep(args.sweep_name, args.config)
