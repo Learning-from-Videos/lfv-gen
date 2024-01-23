@@ -96,6 +96,12 @@ if __name__ == "__main__":
     # Run sweep(s)
     if args.sweep_name == "all":
         for sweep_name in sweeps.keys():
-            run_sweep(sweep_name, args.config)
+            try:
+                run_sweep(sweep_name, args.config)
+            except Exception as e:
+                print(f"Error running sweep {sweep_name}: {e}")
     else:
-        run_sweep(args.sweep_name, args.config)
+        try: 
+            run_sweep(args.sweep_name, args.config)
+        except Exception as e:
+            print(f"Error running sweep {args.sweep_name}: {e}")
