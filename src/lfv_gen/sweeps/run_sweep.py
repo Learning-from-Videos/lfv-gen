@@ -20,7 +20,7 @@ def get_enc_model_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
         yield replace(config, enc_model_name=enc_model_name)
 
 def get_eval_env_and_dataset_env_viewpoint_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
-    for viewpoint in ["top_cap2", "side_cap2", "left_cap2"]:
+    for viewpoint in ["top_cap2", "right_cap2", "left_cap2"]:
         yield replace(
             config, 
             dataset_env_viewpoint=viewpoint, 
@@ -28,7 +28,7 @@ def get_eval_env_and_dataset_env_viewpoint_sweep(config: ExperimentConfig) -> It
         )
 
 def get_eval_env_viewpoint_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
-    for viewpoint in ["top_cap2", "side_cap2", "left_cap2"]:
+    for viewpoint in ["top_cap2", "right_cap2", "left_cap2"]:
         yield replace(
             config, 
             eval_env_viewpoint=viewpoint

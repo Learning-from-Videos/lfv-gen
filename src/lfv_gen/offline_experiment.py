@@ -9,7 +9,7 @@ import tensorflow as tf
 import pickle
 import numpy as np
 from typing import Any
-from moviepy.editor import ImageSequenceClip
+from moviepy.editor import VideoClip
 
 import haiku as hk
 import jax
@@ -54,18 +54,36 @@ class WandbConfig:
     group: str | None = "default"
     name: str | None = "r3m-bc"
 
-def make_gif(image_array: np.ndarray, gif_path: str, fps: int):
+def make_video(image_array: np.ndarray, save_path: str, fps: int):
     """
-    Convert a numpy array of images to a GIF.
+    Convert a numpy array of images into an MP4 video.
 
-    Parameters:
-    image_array (numpy.ndarray): An array of images of shape (batch, height, width, channels).
-    gif_path (str): Path to save the GIF.
-    fps (int): Frames per second in the GIF.
+    Args:
+        image_array (np.ndarray): Numpy array of images with shape (batch, height, width, 3).
+        save_path (str): Path where the output MP4 video will be saved.
+        fps (int): Frames per second for the output video.
+
+    Returns:
+        None
     """
-    images = [img for img in image_array]
-    clip = ImageSequenceClip(images, fps=fps)
-    clip.write_gif(gif_path)
+    # Ensure that the image_array has a valid shape
+    if len(image_array.shape) != 4 or image_array.shape[-1] != 3:
+        raise ValueError("Input image_array should have shape (batch, height, width, 3)")
+
+    # Define a function to convert each frame
+    def make_frame(t):
+        frame_index = int(t * len(image_array))
+        frame = image_array[frame_index]
+        return frame
+
+    # Calculate the duration of the video based on the number of frames and FPS
+    video_duration = len(image_array) / fps
+
+    # Create a VideoClip from the function
+    video_clip = VideoClip(make_frame, duration=video_duration)
+
+    # Write the video to the specified save_path
+    video_clip.write_videofile(save_path, codec="libx264", fps=fps)
 
 def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
 
@@ -75,7 +93,7 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
         eval_env_name: str,
         eval_env_viewpoint: str
     ) -> Environment:
-        env_cls = ALL_V2_ENVIRONMENTS_GOAL_OBSERVABLE[env_name]
+        env_cls = ALL_V2_ENVIRONMENTS_GOAL_OBSERVABLE[eval_env_name]
         e  = env_cls(render_mode="rgb_array")
 
         # Hack: enable random reset
@@ -87,7 +105,7 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
         e.spec.max_episode_steps = 500
 
         # Hack: set the camera view  to be the same as R3M
-        e.camera_name = "top_cap2"
+        e.camera_name = eval_env_viewpoint
         # Hack: set the renderer to return 256x256 images
         e.model.vis.global_.offwidth = 256
         e.model.vis.global_.offheight = 256
@@ -168,6 +186,7 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
         actions = np.concatenate(actions)
         return tf.data.Dataset.from_tensor_slices((obs, actions))
     
+    # TODO: cache dataset creation
     dataset = create_dataset(raw_dataset)
     # Validate dataset
     _obs, _act = next(iter(dataset))
@@ -269,19 +288,30 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
     
     # NOTE: Configure WandB through env variables
     # Randomly generate suffix based on time
-    import time 
+    import time
+    import pathlib
+    wandb_dir = pathlib.Path(f"/tmp/{time.time()}") 
+    wandb_dir.mkdir(parents=True, exist_ok=True)
     wandb.init(
         project=wandb_config.project,
         entity=wandb_config.entity,
         group=wandb_config.group,
         name=wandb_config.name,
-        dir=f"/tmp/wandb/{time.time()}"
+        dir=str(wandb_dir)
     )
 
-    for step in range(config.train_steps):
+    # Log a few episodes of the dataset
+    images = [raw_dataset[i]['images'] for i in range(3)]
+    images = np.concatenate(images, axis=0)
+    video_path = str(wandb_dir / "dataset.mp4")
+    make_video(images, video_path, fps=env.metadata['render_fps'])
+    video = wandb.Video(video_path, fps=env.metadata['render_fps'], format="mp4")
+    wandb.log({"train/dataset": video})
+
+    for step in tqdm(range(config.train_steps), desc="Training"):
         policy_params, opt_state, loss = train_step(policy_params, opt_state, next(dataset_iterator))
         wandb.log({"train/loss": loss})
-        if step % config.eval_freq == 0:
+        if (step + 1) % config.eval_freq == 0:
             eval_metrics = eval_policy(policy, policy_params, env)
             eval_metrics={"eval/" + k: v for k, v in eval_metrics.items()}
             wandb.log(eval_metrics)
