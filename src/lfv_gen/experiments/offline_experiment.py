@@ -232,7 +232,7 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
             # Record 3 videos in the same path
             episode_trigger= lambda x: x == 0,
             video_length=1500,
-            name_prefix=f"{env_name}"
+            name_prefix="eval"
         )
         metrics = {}
         successes = []
@@ -257,7 +257,7 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
         metrics['episode_length'] = np.mean(episode_lengths)
         metrics['episode_reward'] = np.mean(episode_rewards)
         metrics['elapsed_time'] = np.mean(elapsed_time)
-        video_path = f"/tmp/videos/{env_name}-episode-0.mp4"
+        video_path = f"/tmp/videos/eval-episode-0.mp4"
         metrics['video'] = wandb.Video(
             video_path, 
             fps=env.metadata['render_fps'], 
