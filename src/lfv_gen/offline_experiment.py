@@ -27,6 +27,7 @@ from dataclasses import dataclass
 
 import logging
 import os
+import shutil
 import pathlib
 JAM_MODEL_DIR = os.getenv("JAM_MODEL_DIR")
 
@@ -57,12 +58,7 @@ class WandbConfig:
 
 def rm_tree(path: pathlib.Path):
     """ Recursively remove a directory and all its contents. """
-    for child in path.glob('*'):
-        if child.is_file():
-            child.unlink()
-        else:
-            rm_tree(child)
-    path.rmdir()
+    shutil.rmtree(path)
 
 def make_video(image_array: np.ndarray, save_path: str, fps: int):
     """

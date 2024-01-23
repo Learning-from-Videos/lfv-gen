@@ -74,7 +74,12 @@ sweeps: dict[str, tuple[Any, str]] = {
 if __name__ == "__main__":
 
     parser = simple_parsing.ArgumentParser()
-    parser.add_argument("--sweep-name", type=str, default="eval_env_and_dataset_env_viewpoint")
+    parser.add_argument(
+        "--sweep-name", 
+        type=str, 
+        default="eval_env_and_dataset_env_viewpoint",
+        choices = list(sweeps.keys()),
+    )
     parser.add_arguments(ExperimentConfig, dest="config")
     args = parser.parse_args()
 
