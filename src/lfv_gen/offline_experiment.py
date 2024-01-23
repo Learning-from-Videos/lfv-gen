@@ -27,6 +27,7 @@ from dataclasses import dataclass
 
 import logging
 import os
+import pathlib
 JAM_MODEL_DIR = os.getenv("JAM_MODEL_DIR")
 
 # common types
@@ -54,6 +55,15 @@ class WandbConfig:
     group: str | None = "default"
     name: str | None = "r3m-bc"
 
+def rm_tree(path: pathlib.Path):
+    """ Recursively remove a directory and all its contents. """
+    for child in path.glob('*'):
+        if child.is_file():
+            child.unlink()
+        else:
+            rm_tree(child)
+    path.rmdir()
+
 def make_video(image_array: np.ndarray, save_path: str, fps: int):
     """
     Convert a numpy array of images into an MP4 video.
@@ -66,24 +76,14 @@ def make_video(image_array: np.ndarray, save_path: str, fps: int):
     Returns:
         None
     """
-    # Ensure that the image_array has a valid shape
-    if len(image_array.shape) != 4 or image_array.shape[-1] != 3:
-        raise ValueError("Input image_array should have shape (batch, height, width, 3)")
-
-    # Define a function to convert each frame
     def make_frame(t):
-        frame_index = int(t * len(image_array))
-        frame = image_array[frame_index]
-        return frame
+        frame_idx = int(np.round(t * fps))
+        # Clamp frame_idx within valid range
+        frame_idx = max(0, min(frame_idx, len(image_array) - 1))  
+        return image_array[frame_idx, ...]
 
-    # Calculate the duration of the video based on the number of frames and FPS
-    video_duration = len(image_array) / fps
-
-    # Create a VideoClip from the function
-    video_clip = VideoClip(make_frame, duration=video_duration)
-
-    # Write the video to the specified save_path
-    video_clip.write_videofile(save_path, codec="libx264", fps=fps)
+    video = VideoClip(make_frame, duration=image_array.shape[0] / fps)
+    video.write_videofile(save_path, fps=fps, verbose=False)
 
 def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
 
@@ -317,6 +317,7 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
             wandb.log(eval_metrics)
 
     wandb.finish()
+    rm_tree(wandb_dir)
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
