@@ -6,9 +6,10 @@ python src/lfv_gen/scripts/download_data.py
 
 import gdown
 import pathlib
+import os
 from lfv_gen.data.dataset_zoo import R3M_DATASETS
 
-DATASETS_DIR = pathlib.Path("datasets")
+DATASETS_DIR = pathlib.Path(os.getenv("DATASETS_DIR", "datasets"))
 
 
 def try_download(id: str, output: str):
