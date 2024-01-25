@@ -32,6 +32,10 @@ requires-python = ">=3.10,<3.11" # jam does not support 3.11
 readme = "README.md"
 license = {text = "MIT"}
 
+[project.optional-dependencies]
+sb3 = [
+    "stable-baselines3>=2.2.1",
+]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
