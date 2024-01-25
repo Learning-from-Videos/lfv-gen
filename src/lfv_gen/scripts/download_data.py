@@ -1,4 +1,4 @@
-""" Script to download data 
+""" Script to download data
 
 Example usage:
 python src/lfv_gen/scripts/download_data.py
@@ -10,11 +10,13 @@ from lfv_gen.data.dataset_zoo import R3M_DATASETS
 
 DATASETS_DIR = pathlib.Path("datasets")
 
+
 def try_download(id: str, output: str):
     try:
         gdown.download(id=id, output=output, quiet=False)
     except Exception as e:
         print(e)
+
 
 if __name__ == "__main__":
     for dataset in R3M_DATASETS:

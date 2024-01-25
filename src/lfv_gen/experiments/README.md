@@ -14,7 +14,7 @@ export WANDB_ENTITY=some_entity
 
 ## Running experiments
 
-To run a single experiment: 
+To run a single experiment:
 ```bash
 python -m lfv_gen.experiments.offline_experiment
 ```
@@ -27,4 +27,4 @@ For help, add `--help` to both commands above
 
 ## Proof-of-concept (deprecated)
 
-The `r3m_minimal` folder is a self-contained proof of concept of R3M + BC. 
+The `r3m_minimal` folder is a self-contained proof of concept of R3M + BC.
