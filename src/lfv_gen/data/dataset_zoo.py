@@ -15,7 +15,7 @@ class R3MDemonstrationDataset:
 
 
 #
-R3M_DATASETS: tuple[R3MDemonstrationDataset] = (
+R3M_DATASETS: tuple[R3MDemonstrationDataset, ...] = (
     # Metaworld datasets
     R3MDemonstrationDataset(
         suite="metaworld",

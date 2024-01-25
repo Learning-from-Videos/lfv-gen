@@ -5,7 +5,7 @@
 groups = ["default"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:9e02678d7622986be393e8d18bf3f4bc7e1d126b84ffb0fce96a902741f4bd20"
+content_hash = "sha256:0d80a41abb0ee4107e59067c354ca9d76afc30bc5a1f8b2aab743e63eae03967"
 
 [[package]]
 name = "absl-py"
@@ -2039,6 +2039,20 @@ groups = ["default"]
 files = [
     {file = "pyparsing-3.1.1-py3-none-any.whl", hash = "sha256:32c7c0b711493c72ff18a981d24f28aaf9c1fb7ed5e9667c9e84e3db623bdbfb"},
     {file = "pyparsing-3.1.1.tar.gz", hash = "sha256:ede28a1a32462f5a9705e07aea48001a08f7cf81a021585011deba701581a0db"},
+]
+
+[[package]]
+name = "pyright"
+version = "1.1.348"
+requires_python = ">=3.7"
+summary = "Command line wrapper for pyright"
+groups = ["default"]
+dependencies = [
+    "nodeenv>=1.6.0",
+]
+files = [
+    {file = "pyright-1.1.348-py3-none-any.whl", hash = "sha256:e7d4df504c4c082b5c3725a8c15fc3fda62da5d09fc77994baa77f359a1b62f2"},
+    {file = "pyright-1.1.348.tar.gz", hash = "sha256:1c6994546f7ab130b9da8c357f8b2a99bef268b6d8ae2eae292bde66923aa7af"},
 ]
 
 [[package]]

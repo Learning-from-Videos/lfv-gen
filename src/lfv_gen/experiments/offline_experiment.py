@@ -112,7 +112,9 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
         assert image_array.shape == (256, 256, 3)
         return e
 
-    def setup_dataset(dataset_env_name: str, dataset_env_viewpoint: str) -> Dataset:
+    def setup_dataset(
+        dataset_env_name: str, dataset_env_viewpoint: str
+    ) -> list[dict[str, Any]]:
         dataset_path = (
             f"datasets/metaworld/{dataset_env_viewpoint}/{dataset_env_name}.pickle"
         )
@@ -253,10 +255,12 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
         for _ in range(num_episodes):
             _, info = eval_env.reset()
             image = eval_env.render()
+            assert isinstance(image, np.ndarray)  # keep pyright happy
             while True:
                 action = policy(params, preprocess_image(image[None, ...]))
                 _, _, terminated, truncated, info = eval_env.step(np.asarray(action[0]))
                 image = eval_env.render()
+                assert isinstance(image, np.ndarray)
 
                 if terminated or truncated:
                     successes.append(info["success"])

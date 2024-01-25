@@ -25,6 +25,7 @@ dependencies = [
     "simple-parsing>=0.1.4",
     "nbdime>=4.0.1",
     "pre-commit>=3.6.0",
+    "pyright>=1.1.348",
 ]
 requires-python = ">=3.10,<3.11" # jam does not support 3.11
 readme = "README.md"
