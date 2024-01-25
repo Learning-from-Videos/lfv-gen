@@ -166,8 +166,8 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
     def _forward_fn(obs):
         return hk.Sequential(
             [
-                hk.LayerNorm(axis=-1, create_scale=True, create_offset=True),
-                jnp.tanh,
+                # hk.LayerNorm(axis=-1, create_scale=True, create_offset=True),
+                # jnp.tanh,
                 hk.nets.MLP(output_sizes=[256, 256, 4], activate_final=False),
             ]
         )(obs)

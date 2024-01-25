@@ -93,12 +93,14 @@ sweeps: dict[str, tuple[Any, str]] = {
 }
 
 
-def run_sweep(sweep_name: str, obs_type: ObsType, config: ExperimentConfig):
+def run_sweep(
+    sweep_name: str, obs_type: ObsType, config: ExperimentConfig, prefix: str = ""
+):
     # Run sweep
     sweep_fn, sweep_var = sweeps[sweep_name]
     for config in sweep_fn(config):
         wandb_config = WandbConfig(
-            group=f"{obs_type}___{sweep_name}",
+            group=f"{prefix}_{obs_type}___{sweep_name}",
             name=f"{sweep_var}={getattr(config, sweep_var)}",
         )
         if obs_type == "pixel":
@@ -118,6 +120,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--obs-type", type=str, default="state", choices=("pixel", "state")
     )
+    parser.add_argument("--group-prefix", type=str, default="")
     parser.add_arguments(ExperimentConfig, dest="config")
     args = parser.parse_args()
 
@@ -125,11 +128,15 @@ if __name__ == "__main__":
     if args.sweep_name == "all":
         for sweep_name in sweeps.keys():
             try:
-                run_sweep(sweep_name, args.obs_type, args.config)
+                run_sweep(
+                    sweep_name, args.obs_type, args.config, prefix=args.group_prefix
+                )
             except Exception as e:
                 print(f"Error running sweep {sweep_name}: {e}")
     else:
         try:
-            run_sweep(args.sweep_name, args.obs_type, args.config)
+            run_sweep(
+                args.sweep_name, args.obs_type, args.config, prefix=args.group_prefix
+            )
         except Exception as e:
             print(f"Error running sweep {args.sweep_name}: {e}")
