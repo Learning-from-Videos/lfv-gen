@@ -1,15 +1,19 @@
 import simple_parsing
-from dataclasses import dataclass, replace
+from dataclasses import replace
 from lfv_gen.experiments.offline_experiment import (
-    run_offline_experiment, 
-    ExperimentConfig, 
-    WandbConfig
+    run_offline_experiment,
+    ExperimentConfig,
+    WandbConfig,
 )
 from typing import Iterable, Any
 
-def get_dataset_n_episodes_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
+
+def get_dataset_n_episodes_sweep(
+    config: ExperimentConfig,
+) -> Iterable[ExperimentConfig]:
     for dataset_n_episodes in [1, 3, 10, 30, 100, 200]:
         yield replace(config, dataset_n_episodes=dataset_n_episodes)
+
 
 def get_enc_model_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
     for enc_model_name in [
@@ -19,28 +23,32 @@ def get_enc_model_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
     ]:
         yield replace(config, enc_model_name=enc_model_name)
 
-def get_eval_env_and_dataset_env_viewpoint_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
+
+def get_eval_env_and_dataset_env_viewpoint_sweep(
+    config: ExperimentConfig,
+) -> Iterable[ExperimentConfig]:
     for viewpoint in ["top_cap2", "right_cap2", "left_cap2"]:
         yield replace(
-            config, 
-            dataset_env_viewpoint=viewpoint, 
-            eval_env_viewpoint=viewpoint
+            config, dataset_env_viewpoint=viewpoint, eval_env_viewpoint=viewpoint
         )
 
-def get_eval_env_viewpoint_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
+
+def get_eval_env_viewpoint_sweep(
+    config: ExperimentConfig,
+) -> Iterable[ExperimentConfig]:
     for viewpoint in ["top_cap2", "right_cap2", "left_cap2"]:
-        yield replace(
-            config, 
-            eval_env_viewpoint=viewpoint
-        )
+        yield replace(config, eval_env_viewpoint=viewpoint)
 
-def get_eval_and_dataset_env_name_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
-    """ Sweep over the environments used for training and evaluation. 
-    
+
+def get_eval_and_dataset_env_name_sweep(
+    config: ExperimentConfig,
+) -> Iterable[ExperimentConfig]:
+    """Sweep over the environments used for training and evaluation.
+
     In all cases we keep the dataset_env_name the same as the eval_env_name.
     """
     for env_name in [
-        "assembly-v2-goal-observable", 
+        "assembly-v2-goal-observable",
         "bin-picking-v2-goal-observable",
         "button-press-topdown-v2-goal-observable",
         "drawer-open-v2-goal-observable",
@@ -48,12 +56,13 @@ def get_eval_and_dataset_env_name_sweep(config: ExperimentConfig) -> Iterable[Ex
     ]:
         yield replace(config, dataset_env_name=env_name, eval_env_name=env_name)
 
+
 def get_eval_env_name_sweep(config: ExperimentConfig) -> Iterable[ExperimentConfig]:
-    """ Sweep over the environments used for evaluation.
-    
-    Here we keep the dataset_env_name constant to evaluate cross-task transfer. """
+    """Sweep over the environments used for evaluation.
+
+    Here we keep the dataset_env_name constant to evaluate cross-task transfer."""
     for env_name in [
-        "assembly-v2-goal-observable", 
+        "assembly-v2-goal-observable",
         "bin-picking-v2-goal-observable",
         "button-press-topdown-v2-goal-observable",
         "drawer-open-v2-goal-observable",
@@ -61,15 +70,23 @@ def get_eval_env_name_sweep(config: ExperimentConfig) -> Iterable[ExperimentConf
     ]:
         yield replace(config, eval_env_name=env_name)
 
+
 # Dictionary of sweep_name: (sweep_fn, sweep_var_name)
 sweeps: dict[str, tuple[Any, str]] = {
     "dataset_n_episodes": (get_dataset_n_episodes_sweep, "dataset_n_episodes"),
     "enc_model": (get_enc_model_sweep, "enc_model_name"),
-    "eval_env_and_dataset_env_viewpoint": (get_eval_env_and_dataset_env_viewpoint_sweep, "dataset_env_viewpoint"),
+    "eval_env_and_dataset_env_viewpoint": (
+        get_eval_env_and_dataset_env_viewpoint_sweep,
+        "dataset_env_viewpoint",
+    ),
     "eval_env_viewpoint": (get_eval_env_viewpoint_sweep, "eval_env_viewpoint"),
-    "eval_and_dataset_env_name": (get_eval_and_dataset_env_name_sweep, "dataset_env_name"),
+    "eval_and_dataset_env_name": (
+        get_eval_and_dataset_env_name_sweep,
+        "dataset_env_name",
+    ),
     "eval_env_name": (get_eval_env_name_sweep, "eval_env_name"),
 }
+
 
 def run_sweep(sweep_name: str, config: ExperimentConfig):
     # Run sweep
@@ -81,14 +98,14 @@ def run_sweep(sweep_name: str, config: ExperimentConfig):
         )
         run_offline_experiment(config, wandb_config=wandb_config)
 
-if __name__ == "__main__":
 
+if __name__ == "__main__":
     parser = simple_parsing.ArgumentParser()
     parser.add_argument(
-        "--sweep-name", 
-        type=str, 
+        "--sweep-name",
+        type=str,
         default="eval_env_and_dataset_env_viewpoint",
-        choices = list(sweeps.keys()) + ["all"],
+        choices=list(sweeps.keys()) + ["all"],
     )
     parser.add_arguments(ExperimentConfig, dest="config")
     args = parser.parse_args()
@@ -101,7 +118,7 @@ if __name__ == "__main__":
             except Exception as e:
                 print(f"Error running sweep {sweep_name}: {e}")
     else:
-        try: 
+        try:
             run_sweep(args.sweep_name, args.config)
         except Exception as e:
             print(f"Error running sweep {args.sweep_name}: {e}")

@@ -19,9 +19,9 @@ To download all datasets, run:
 python -m lfv_gen.scripts.download_data
 ```
 
-At the moment, only R3M datasets are supported 
+At the moment, only R3M datasets are supported
 
 ## Pre-trained Models
 To evaluate pre-trained model checkpoints, we rely on [jam](https://github.com/ethanluoyc/jam)
 
-Follow the instructions there to download datasets. 
+Follow the instructions there to download datasets.

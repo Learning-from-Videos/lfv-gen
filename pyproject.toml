@@ -24,6 +24,9 @@ dependencies = [
     "wandb>=0.16.2",
     "simple-parsing>=0.1.4",
     "nbdime>=4.0.1",
+    "pre-commit>=3.6.0",
+    "pyright>=1.1.348",
+    "pytest>=7.4.4",
 ]
 requires-python = ">=3.10,<3.11" # jam does not support 3.11
 readme = "README.md"
@@ -35,4 +38,7 @@ build-backend = "pdm.backend"
 
 
 [tool.pdm]
-package-type = "library"
+distribution = true
+
+[tool.pdm.scripts]
+lint.shell = "pre-commit run --all-files"
