@@ -1,11 +1,16 @@
 import simple_parsing
 from dataclasses import replace
-from lfv_gen.experiments.offline_experiment import (
-    run_offline_experiment,
+from lfv_gen.experiments.mw_pixel_experiment import (
+    run_offline_experiment as run_pixel_experiment,
     ExperimentConfig,
     WandbConfig,
 )
-from typing import Iterable, Any
+from lfv_gen.experiments.mw_state_experiment import (
+    run_offline_experiment as run_state_experiment,
+)
+from typing import Iterable, Any, Literal
+
+ObsType = Literal["pixel", "state"]
 
 
 def get_dataset_n_episodes_sweep(
@@ -88,15 +93,18 @@ sweeps: dict[str, tuple[Any, str]] = {
 }
 
 
-def run_sweep(sweep_name: str, config: ExperimentConfig):
+def run_sweep(sweep_name: str, obs_type: ObsType, config: ExperimentConfig):
     # Run sweep
     sweep_fn, sweep_var = sweeps[sweep_name]
     for config in sweep_fn(config):
         wandb_config = WandbConfig(
-            group=sweep_name,
+            group=f"{obs_type}___{sweep_name}",
             name=f"{sweep_var}={getattr(config, sweep_var)}",
         )
-        run_offline_experiment(config, wandb_config=wandb_config)
+        if obs_type == "pixel":
+            run_pixel_experiment(config, wandb_config=wandb_config)
+        else:
+            run_state_experiment(config, wandb_config=wandb_config)
 
 
 if __name__ == "__main__":
@@ -107,6 +115,9 @@ if __name__ == "__main__":
         default="eval_env_and_dataset_env_viewpoint",
         choices=list(sweeps.keys()) + ["all"],
     )
+    parser.add_argument(
+        "--obs-type", type=str, default="state", choices=("pixel", "state")
+    )
     parser.add_arguments(ExperimentConfig, dest="config")
     args = parser.parse_args()
 
@@ -114,11 +125,11 @@ if __name__ == "__main__":
     if args.sweep_name == "all":
         for sweep_name in sweeps.keys():
             try:
-                run_sweep(sweep_name, args.config)
+                run_sweep(sweep_name, args.obs_type, args.config)
             except Exception as e:
                 print(f"Error running sweep {sweep_name}: {e}")
     else:
         try:
-            run_sweep(args.sweep_name, args.config)
+            run_sweep(args.sweep_name, args.obs_type, args.config)
         except Exception as e:
             print(f"Error running sweep {args.sweep_name}: {e}")

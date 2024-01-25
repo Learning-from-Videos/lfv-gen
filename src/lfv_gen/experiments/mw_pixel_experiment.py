@@ -1,5 +1,4 @@
 from metaworld.envs import ALL_V2_ENVIRONMENTS_GOAL_OBSERVABLE
-from lfv_gen.config import ROOT_DIR
 
 import wandb
 import simple_parsing
@@ -24,11 +23,13 @@ from tqdm import tqdm
 from dataclasses import dataclass
 
 import logging
-import os
 import shutil
 import pathlib
 
-JAM_MODEL_DIR = os.getenv("JAM_MODEL_DIR")
+from lfv_gen.config import (
+    DATASETS_DIR,
+    JAM_MODEL_DIR,
+)
 
 # common types
 Environment = gymnasium.Env
@@ -116,9 +117,10 @@ def run_offline_experiment(config: ExperimentConfig, wandb_config: WandbConfig):
         dataset_env_name: str, dataset_env_viewpoint: str
     ) -> list[dict[str, Any]]:
         dataset_path = (
-            f"datasets/metaworld/{dataset_env_viewpoint}/{dataset_env_name}.pickle"
+            DATASETS_DIR
+            / f"metaworld/{dataset_env_viewpoint}/{dataset_env_name}.pickle"
         )
-        with open(ROOT_DIR / dataset_path, "rb") as f:
+        with open(dataset_path, "rb") as f:
             dataset: list[dict[str, Any]] = pickle.load(f)
 
         # Simple validation
