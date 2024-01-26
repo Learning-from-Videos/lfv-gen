@@ -46,3 +46,10 @@ distribution = true
 
 [tool.pdm.scripts]
 lint.shell = "pre-commit run --all-files"
+
+[tool.pyright]
+include = ["src"]
+exclude = ["**/node_modules",
+    "**/__pycache__",
+    "src/lfv_gen/experiments",
+]
