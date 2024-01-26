@@ -1,6 +1,7 @@
 from lfv_gen.experiments.utils import env_utils, log_utils
 from stable_baselines3 import SAC, PPO, TD3
 from stable_baselines3.common.logger import configure
+from dataclasses import dataclass
 import simple_parsing
 
 algos = {
@@ -10,10 +11,19 @@ algos = {
 }
 
 
-def run_online_expt(algo: str):
+@dataclass
+class ExperimentConfig:
+    env_name: str = (
+        "drawer-open-v2-goal-observable"  # Metaworld environment for evaluation
+    )
+    env_viewpoint: str = "top_cap2"  # 'top_cap2', 'left_cap2', 'right_cap2'
+    train_steps: int = 1_000_000  # Training steps
+
+
+def run_online_expt(algo: str, config: ExperimentConfig):
     env = env_utils.setup_env(
-        "assembly-v2-goal-observable",
-        "top_cap2",
+        config.env_name,
+        config.env_viewpoint,  # Only used for rendering
     )
 
     # Default: 2-layer MLP of hidden dims [256, 256]
@@ -27,7 +37,7 @@ def run_online_expt(algo: str):
     sb3_logger = configure("/tmp/sb3_log/", ["tensorboard", "stdout", "csv"])
 
     model.set_logger(sb3_logger)
-    model.learn(total_timesteps=10000, log_interval=4)
+    model.learn(total_timesteps=config.train_steps, log_interval=4)
 
     metrics = env_utils.eval_policy(
         policy=lambda obs: model.predict(obs, deterministic=True)[0],
@@ -41,10 +51,11 @@ def run_online_expt(algo: str):
 if __name__ == "__main__":
     parser = simple_parsing.ArgumentParser()
     parser.add_argument("--algo", type=str, default="sac")
+    parser.add_arguments(ExperimentConfig, dest="config")
     args = parser.parse_args()
 
     if args.algo == "all":
         for algo in algos:
-            run_online_expt(algo)
+            run_online_expt(algo, args.config)
     else:
-        run_online_expt(args.algo)
+        run_online_expt(args.algo, args.config)
