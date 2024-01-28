@@ -1,5 +1,6 @@
 import metaworld.policies as POLICIES
 
+from collections import namedtuple
 from metaworld.envs import ALL_V2_ENVIRONMENTS_GOAL_OBSERVABLE
 from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import SawyerXYZEnv
 from metaworld.envs.mujoco.env_dict import ALL_V2_ENVIRONMENTS
@@ -33,6 +34,11 @@ def setup_metaworld_env(
     # Hack: enable random reset
     e._freeze_rand_vec = False
     e.seed(seed)
+
+    # Hack: add a DmEnv-like spec
+    e.spec = namedtuple("spec", ["id", "max_episode_steps"])
+    e.spec.id = env_name
+    e.spec.max_episode_steps = 500
 
     # Hack: set the camera view  to be the same as R3M
     e.camera_name = camera_name
