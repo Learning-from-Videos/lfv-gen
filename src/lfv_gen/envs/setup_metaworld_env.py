@@ -64,4 +64,5 @@ def setup_metaworld_policy(env_name: MetaworldEnvName) -> Policy:
     env_cls_name = env_cls.__name__
     policy_cls_name = env_cls_name.replace("Env", "") + "Policy"
     policy_cls: SawyerXYZPolicy = getattr(POLICIES, policy_cls_name)
-    return lambda obs: policy_cls.predict_action(obs)
+    policy = policy_cls()
+    return lambda obs: policy.get_action(obs).astype(obs.dtype)
