@@ -29,6 +29,8 @@ dependencies = [
     "pytest>=7.4.4",
     "envlogger[tfds]>=1.1",
     "dm-env-wrappers>=0.0.13",
+    "tensorflow-datasets>=4.9.4",
+    "rlds>=0.1.8",
 ]
 requires-python = ">=3.10,<3.11" # jam does not support 3.11
 readme = "README.md"

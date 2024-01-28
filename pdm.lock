@@ -5,7 +5,7 @@
 groups = ["default", "sb3"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:085e8cf8abbae98802fe6b8bd284b803569f8876317dbb44c9987f09b773a229"
+content_hash = "sha256:a13863a74efef44a4a8f70e9e60f5a63c7eb55f9fc2d46dcbbc257f1ddc934ca"
 
 [[package]]
 name = "absl-py"
@@ -605,6 +605,32 @@ dependencies = [
     "importlib-resources",
     "numpy",
     "typing-extensions",
+    "typing-extensions",
+    "zipp",
+]
+files = [
+    {file = "etils-1.6.0-py3-none-any.whl", hash = "sha256:3da192b057929f2511f9ef713cee7d9c498e741740f8b2a9c0f6392d787201d4"},
+    {file = "etils-1.6.0.tar.gz", hash = "sha256:c635fbd02a79fed4ad76825d31306b581d22b40671721daa8bc279cf6333e48a"},
+]
+
+[[package]]
+name = "etils"
+version = "1.6.0"
+extras = ["enp", "epath", "etree"]
+requires_python = ">=3.10"
+summary = "Collection of common python utils"
+groups = ["default"]
+dependencies = [
+    "etils==1.6.0",
+    "etils[array_types]",
+    "etils[enp]",
+    "etils[epy]",
+    "etils[epy]",
+    "etils[epy]",
+    "etils[etqdm]",
+    "fsspec",
+    "importlib-resources",
+    "numpy",
     "typing-extensions",
     "zipp",
 ]
@@ -2778,6 +2804,19 @@ files = [
 ]
 
 [[package]]
+name = "rlds"
+version = "0.1.8"
+summary = "A Python library for Reinforcement Learning Datasets."
+groups = ["default"]
+dependencies = [
+    "absl-py",
+    "numpy",
+]
+files = [
+    {file = "rlds-0.1.8-py3-none-manylinux2010_x86_64.whl", hash = "sha256:274275038049f2f7ceb313ea100f15156fd69d311d23f60e87f8e121ab82ad2b"},
+]
+
+[[package]]
 name = "rpds-py"
 version = "0.17.1"
 requires_python = ">=3.8"
@@ -3216,6 +3255,34 @@ dependencies = [
 ]
 files = [
     {file = "tensorflow_cpu_aws-2.15.0-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:a751f4d6a16360347851d2e680b8bfddb8ab7799723f1fd5c171fa1f2e8c04aa"},
+]
+
+[[package]]
+name = "tensorflow-datasets"
+version = "4.9.4"
+requires_python = ">=3.10"
+summary = "tensorflow/datasets is a library of datasets ready to use with TensorFlow."
+groups = ["default"]
+dependencies = [
+    "absl-py",
+    "array-record>=0.5.0; platform_system == \"Linux\"",
+    "click",
+    "dm-tree",
+    "etils[enp,epath,etree]>=0.9.0",
+    "numpy",
+    "promise",
+    "protobuf>=3.20",
+    "psutil",
+    "requests>=2.19.0",
+    "tensorflow-metadata",
+    "termcolor",
+    "toml",
+    "tqdm",
+    "wrapt",
+]
+files = [
+    {file = "tensorflow-datasets-4.9.4.tar.gz", hash = "sha256:cd7bf9c340d28be47558d5d3a4eb7278b9f7bac027abdb9d850375a9fecac7f2"},
+    {file = "tensorflow_datasets-4.9.4-py3-none-any.whl", hash = "sha256:cbf93bf87531605ea654d702763b9162546775c7aa3247975d502fd921c39e4d"},
 ]
 
 [[package]]
