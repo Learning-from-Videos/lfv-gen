@@ -13,3 +13,10 @@ def test_seeded_env_creation_is_deterministic():
 
     assert np.allclose(obs1, obs2)
     assert np.allclose(img1, img2)
+
+
+def test_env_image_is_256x256():
+    env = setup_metaworld_env("drawer-open-v2-goal-observable", "top_cap2", seed=0)
+    env.reset()
+    img = env.render()
+    assert img.shape == (256, 256, 3)
