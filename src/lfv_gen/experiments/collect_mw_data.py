@@ -1,5 +1,7 @@
 import envlogger
 import tensorflow_datasets as tfds
+import tensorflow as tf
+from tqdm import tqdm
 
 from envlogger.backends.tfds_backend_writer import TFDSBackendWriter
 from dm_env_wrappers import GymnasiumWrapper
@@ -10,11 +12,11 @@ from lfv_gen.config import DATASETS_DIR
 from lfv_gen.core.types import GymEnv, DmEnv
 from lfv_gen.core.policy import Policy
 from lfv_gen.envs.setup_metaworld_env import (
-    MetaworldEnvName,
-    MetaworldCameraName,
     setup_metaworld_env,
     setup_metaworld_policy,
 )
+
+from lfv_gen.experiments.utils import data_utils
 
 
 @dataclass
@@ -27,20 +29,37 @@ class ExperimentConfig:
     num_episodes: int = 200  # Number of episodes to collect
 
 
-def get_dataset_name(
-    suite: str,
-    env_name: MetaworldEnvName,
-    camera_name: MetaworldCameraName,
-):
-    return f"{suite}/{env_name}/{camera_name}"
-
-
 def collect_data(
-    env_name: MetaworldEnvName,
-    camera_name: MetaworldCameraName,
-    seed: int,
+    env: DmEnv,
+    policy: Policy,
     num_episodes: int,
+    dataset_config: rlds_base.DatasetConfig,
+    split_name: str = "train",
+    max_episodes_per_file: int = 1000,
+    show_progress: bool = False,
 ):
+    with envlogger.EnvLogger(
+        dm_env,
+        backend=TFDSBackendWriter(
+            dataset_dir,
+            split_name=split_name,
+            max_episodes_per_file=max_episodes_per_file,
+            ds_config=dataset_config,
+        ),
+    ) as env:
+        for _ in tqdm(range(num_episodes), disable=not show_progress, desc="Episodes"):
+            timestep = env.reset()
+            while not timestep.last():
+                action = policy(timestep.observation)
+                timestep = env.step(action)
+
+
+if __name__ == "__main__":
+    env_name = "drawer-open-v2-goal-observable"
+    camera_name = "top_cap2"
+    seed = 0
+    num_episodes = 10
+
     env: GymEnv = setup_metaworld_env(
         env_name=env_name,
         camera_name=camera_name,
@@ -48,8 +67,7 @@ def collect_data(
     )
     dm_env: DmEnv = GymnasiumWrapper(env)
     policy: Policy = setup_metaworld_policy(env_name)
-
-    dataset_name = get_dataset_name("metaworld", env_name, camera_name)
+    dataset_name = data_utils.get_dataset_name("metaworld", env_name, camera_name)
     dataset_dir = DATASETS_DIR / dataset_name
     dataset_dir.mkdir(exist_ok=True, parents=True)
 
@@ -67,36 +85,14 @@ def collect_data(
             dtype=dm_env.action_spec().dtype,
             encoding=tfds.features.Encoding.ZLIB,
         ),
-        reward_info=tfds.features.Tensor(
-            shape=dm_env.reward_spec().shape,
-            dtype=dm_env.reward_spec().dtype,
-            encoding=tfds.features.Encoding.ZLIB,
-        ),
-        # TODO: figure out how to encode discount
-        # discount_info=tf.float32
+        reward_info=tf.float64,
+        discount_info=tf.float64,
     )
 
-    with envlogger.EnvLogger(
-        dm_env,
-        backend=TFDSBackendWriter(
-            dataset_dir,
-            split_name="train",
-            max_episodes_per_file=100,
-            ds_config=dataset_config,
-        ),
-    ) as env:
-        for _ in range(num_episodes):
-            timestep = env.reset()
-            while not timestep.last():
-                action = policy(timestep.observation)
-                timestep = env.step(action)
-
-
-if __name__ == "__main__":
-    config = ExperimentConfig()
     collect_data(
-        env_name=config.env_name,
-        camera_name=config.camera_name,
-        seed=config.seed,
-        num_episodes=config.num_episodes,
+        env=dm_env,
+        policy=policy,
+        num_episodes=num_episodes,
+        dataset_config=dataset_config,
+        show_progress=True,
     )
