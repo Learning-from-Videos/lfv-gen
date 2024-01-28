@@ -1,8 +1,13 @@
+import metaworld.policies as POLICIES
+
 from metaworld.envs import ALL_V2_ENVIRONMENTS_GOAL_OBSERVABLE
 from metaworld.envs.mujoco.sawyer_xyz.sawyer_xyz_env import SawyerXYZEnv
+from metaworld.envs.mujoco.env_dict import ALL_V2_ENVIRONMENTS
+from metaworld.policies.policy import Policy as SawyerXYZPolicy
 
 from typing import Literal
 from lfv_gen.core.types import GymEnv
+from lfv_gen.core.policy import Policy
 
 MetaworldEnvName = str
 MetaworldCameraName = Literal[
@@ -36,3 +41,21 @@ def setup_metaworld_env(
     e.model.vis.global_.offheight = 256
 
     return e
+
+
+def _get_env_base_name(env_name: MetaworldEnvName) -> str:
+    """Get base name of environment
+
+    For example, "drawer-open-v2-goal-observable" -> "drawer-open-v2"
+    """
+    return env_name.replace("-goal-observable", "").replace("-goal-hidden", "")
+
+
+def setup_metaworld_policy(env_name: MetaworldEnvName) -> Policy:
+    """Get scripted expert policy"""
+    env_base_name = _get_env_base_name(env_name)
+    env_cls = ALL_V2_ENVIRONMENTS[env_base_name]
+    env_cls_name = env_cls.__name__
+    policy_cls_name = env_cls_name.replace("Env", "") + "Policy"
+    policy_cls: SawyerXYZPolicy = getattr(POLICIES, policy_cls_name)
+    return lambda obs: policy_cls.predict_action(obs)

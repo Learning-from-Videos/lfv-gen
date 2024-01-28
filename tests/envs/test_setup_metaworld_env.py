@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from lfv_gen.envs.setup_metaworld_env import setup_metaworld_env
+from lfv_gen.envs.setup_metaworld_env import setup_metaworld_policy
 
 
 @pytest.mark.parametrize(
@@ -49,6 +50,21 @@ def test_seeded_env_img_is_deterministic(env_name: str):
     assert np.allclose(img1, img2)
     env1.close()
     env2.close()
+
+
+@pytest.mark.parametrize(
+    "env_name",
+    [
+        "drawer-open-v2-goal-observable",
+        "drawer-close-v2-goal-observable",
+        "assembly-v2-goal-observable",
+        "bin-picking-v2-goal-observable",
+        "hammer-v2-goal-observable",
+    ],
+)
+def test_setup_policy(env_name: str):
+    policy = setup_metaworld_policy("drawer-open-v2-goal-observable")
+    assert callable(policy)
 
 
 def test_env_image_is_256x256():
