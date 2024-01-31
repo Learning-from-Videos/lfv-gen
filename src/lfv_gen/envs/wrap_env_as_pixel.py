@@ -17,7 +17,9 @@ class PixelObservationDictToBoxWrapper(gymnasium.ObservationWrapper):
         return observation["pixels"]
 
 
-def wrap_env_as_pixel(env: GymEnv) -> GymEnv:
-    env = PixelObservationWrapper(env, pixels_only=True)
-    env = PixelObservationDictToBoxWrapper(env)
+def wrap_env_as_pixel(
+    env: GymEnv,
+    pixels_only: bool = False,
+) -> GymEnv:
+    env = PixelObservationWrapper(env, pixels_only=pixels_only)
     return env

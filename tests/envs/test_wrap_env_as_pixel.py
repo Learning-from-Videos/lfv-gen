@@ -14,6 +14,7 @@ def test_wrap_env_as_pixel():
     obs, _ = env.reset()
     image = env.render()
 
-    assert obs.shape == image.shape
-    assert obs.dtype == image.dtype
-    assert np.allclose(obs, image)
+    pixel_obs = obs["pixels"]
+    assert pixel_obs.shape == image.shape
+    assert pixel_obs.dtype == image.dtype
+    assert np.allclose(pixel_obs, image)
